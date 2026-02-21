@@ -19,8 +19,8 @@ if target:
     st.image(img, caption="Scanning...")
 
     with st.spinner("AI Chef is thinking..."):
-        # These lines MUST be indented more than the 'with' line above
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Make sure this line has 8 spaces (or 2 tabs) before it
+        model = genai.GenerativeModel('models/gemini-1.5-flash-8b')
         
         try:
             response = model.generate_content([
