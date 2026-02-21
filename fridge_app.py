@@ -20,7 +20,7 @@ if target:
 
     with st.spinner("AI Chef is thinking..."):
         # Make sure this line has 8 spaces (or 2 tabs) before it
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash-8b')
         
         try:
             response = model.generate_content([
