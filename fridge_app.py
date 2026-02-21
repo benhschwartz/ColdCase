@@ -1,37 +1,30 @@
-import os
-from google import genai
+import streamlit as st
+import google.generativeai as genai
 from PIL import Image
-from pillow_heif import register_heif_opener
 
-register_heif_opener()
+# 1. Security: Look for the hidden API Key
+api_key = st.secrets["GEMINI_API_KEY"]
+genai.configure(api_key=api_key)
 
-# 1. YOUR API KEY
-client = genai.Client(api_key="AIzaSyDlhTrqoisZHuL1di9KQ1GuHqhIQK0EZ2A")
+# 2. App Interface
+st.title("📸 ColdCase: AI Fridge Chef")
+st.write("Take a photo of your fridge to see what you can cook!")
 
-image_path = "my_fridge.jpg"
+# 3. Camera/Upload Widget
+img_file = st.camera_input("Take a picture of your fridge") 
+# Or allow manual upload
+uploaded_file = st.file_provider("...or upload a photo", type=["jpg", "png", "jpeg"])
 
-print("🔍 Checking for image...")
+# Use whichever one the user provided
+target_image = img_file or uploaded_file
 
-if not os.path.exists(image_path):
-    print(f"❌ Error: I can't find {image_path}")
-else:
-    try:
-        # OPEN AND SHRINK IMAGE AUTOMATICALLY
-        img = Image.open(image_path)
-        img.thumbnail((800, 800)) # This makes it "Free Tier" friendly!
+if target_image:
+    img = Image.open(target_image)
+    st.image(img, caption="Scanning your ingredients...", use_container_width=True)
+    
+    with st.spinner("AI Chef is thinking..."):
+        model = genai.GenerativeModel('gemini-1.5-flash') # Stable version for web
+        response = model.generate_content(["List the ingredients you see and suggest 3 easy recipes.", img])
         
-        print("📸 Image resized and ready! Asking AI Chef...")
-        
-        prompt = "Identify the food in this photo. Suggest 2 easy, kid-friendly recipes."
-        
-        response = client.models.generate_content(
-            model="gemini-3-flash-preview",
-            contents=[prompt, img]
-        )
-
-        print("-" * 30)
-        print("👨‍🍳 AI CHEF SUGGESTIONS:")
-        print(response.text)
-        
-    except Exception as e:
-        print(f"❌ Error: {e}")
+        st.subheader("👨‍🍳 Chef's Recommendations:")
+        st.write(response.text)
