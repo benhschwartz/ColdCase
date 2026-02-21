@@ -13,7 +13,7 @@ st.write("Take a photo of your fridge to see what you can cook!")
 # 3. Camera/Upload Widget
 img_file = st.camera_input("Take a picture of your fridge") 
 # Or allow manual upload
-uploaded_file = st.file_provider("...or upload a photo", type=["jpg", "png", "jpeg"])
+uploaded_file = st.file_uploader("...or upload a photo", type=["jpg", "png", "jpeg"])
 
 # Use whichever one the user provided
 target_image = img_file or uploaded_file
