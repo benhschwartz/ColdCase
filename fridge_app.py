@@ -20,11 +20,20 @@ target_image = img_file or uploaded_file
 
 if target_image:
     img = Image.open(target_image)
+    
+    # --- ADD THIS LINE TO FIX THE ERROR ---
+    img = img.convert("RGB") 
+    # ---------------------------------------
+
     st.image(img, caption="Scanning your ingredients...", use_container_width=True)
     
     with st.spinner("AI Chef is thinking..."):
-        model = genai.GenerativeModel('gemini-1.5-flash') # Stable version for web
-        response = model.generate_content(["List the ingredients you see and suggest 3 easy recipes.", img])
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        # We pass the converted 'img' here
+        response = model.generate_content([
+            "List the ingredients you see and suggest 3 easy recipes.", 
+            img
+        ])
         
         st.subheader("👨‍🍳 Chef's Recommendations:")
         st.write(response.text)
