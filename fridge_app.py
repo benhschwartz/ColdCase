@@ -19,9 +19,9 @@ if target:
     st.image(img, caption="Scanning...")
 
     with st.spinner("AI Chef is thinking..."):
-        # We use the 'latest' stable tag
-model = genai.GenerativeModel('gemini-1.5-flash')        
-        # We send the request
+        # These lines MUST be indented more than the 'with' line above
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        
         try:
             response = model.generate_content([
                 "What ingredients are in this fridge? Suggest 3 easy recipes.", 
