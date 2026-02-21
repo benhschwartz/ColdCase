@@ -20,8 +20,7 @@ if target:
 
     with st.spinner("AI Chef is thinking..."):
         # We use the 'latest' stable tag
-        model = genai.GenerativeModel('gemini-1.5-flash-latest')
-        
+model = genai.GenerativeModel('gemini-1.5-flash')        
         # We send the request
         try:
             response = model.generate_content([
