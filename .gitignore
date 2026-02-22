@@ -1,0 +1,9 @@
+# Streamlit secrets (where your API key lives locally)
+.streamlit/secrets.toml
+
+# Python cache files
+__pycache__/
+*.pyc
+
+# System files
+.DS_Store
