@@ -5,69 +5,82 @@ from PIL import Image
 # 1. Setup API
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
-# 2. App UI Header
-st.set_page_config(page_title="ColdCase: AI Fridge Chef", page_icon="🥗")
-st.title("🥗 ColdCase: AI Fridge Chef")
+# 2. App UI Header & Custom Bills Styling
+st.set_page_config(page_title="ColdCase: Bills Mafia Edition", page_icon="🦬")
+
+# Custom CSS for Bills colors
+st.markdown("""
+    <style>
+    .stApp { background-color: #ffffff; }
+    h1 { color: #00338D; border-bottom: 3px solid #C60C30; }
+    .stButton>button { background-color: #00338D; color: white; border-radius: 10px; border: 2px solid #C60C30; }
+    .stButton>button:hover { background-color: #C60C30; border: 2px solid #00338D; }
+    </style>
+    """, unsafe_allow_html=True)
+
+st.title("🦬 ColdCase: Bills Mafia Fridge Chef")
+st.write("Let's go Buffalo! Scan your fridge for game day eats.")
 
 # 3. Sidebar Settings
 with st.sidebar:
-    st.header("Chef Settings")
+    st.image("https://static.www.nfl.com/image/private/f_auto/bills/vsc6u7j3v4f66t7f8gqh", width=100) # Small Bills Logo
+    st.header("Tailgate Settings")
     
-    # Dropdown for Diet Goal
-    diet_goal = st.selectbox(
-        "What is your goal?",
-        ["Standard", "Healthy", "Quick (Under 15 mins)", "High Protein", "Kid Friendly", "Vegetarian"]
-    )
+    diet_goal = st.selectbox("What's the play?", ["Standard", "Healthy", "Game Day Snacks", "High Protein"])
     
-    # Dropdown for Chef Tone
-    chef_tone = st.selectbox(
-        "Chef Personality",
-        ["Friendly Assistant", "Professional Chef", "Sassy Aunt", "Gordon Ramsay Mode"]
-    )
+    # NEW: Mafia Mode Toggle
+    mafia_mode = st.toggle("Activate Mafia Mode? 📢")
     
-    # Toggle for Macros
-    show_macros = st.toggle("Include Calories & Macros?")
+    st.divider()
+    analyze_freshness = st.button("🍎 Analyze Freshness")
     
-    # Toggle for Input Method
-    input_method = st.radio("Choose Input Method:", ("Camera Roll / Upload", "Take Live Photo"))
+    # Easter Egg Button
+    if st.button("Hey-ey-ey-ey!"):
+        st.balloons()
+        st.audio("https://www.myinstants.com/media/sounds/buffalo-bills-shout-song-excerpt.mp3") # Note: Audio might be blocked by some browsers
+        st.success("LET'S GO BUFFALO!")
 
-st.divider()
+    st.divider()
+    input_method = st.radio("Choose Input Method:", ("Camera Roll / Upload", "Take Live Photo"))
 
 # 4. Image Input Logic
 target = None
 if input_method == "Take Live Photo":
-    target = st.camera_input("Take a picture of your ingredients!")
+    target = st.camera_input("Take a picture of the spread!")
 else:
-    target = st.file_uploader("Upload a clear photo from your gallery", type=["jpg", "jpeg", "png"])
+    target = st.file_uploader("Upload a photo from the camera roll", type=["jpg", "jpeg", "png"])
 
-# 5. Processing the Image
+# 5. Processing Logic
 if target:
     img = Image.open(target).convert("RGB")
-    st.image(img, caption="Image Loaded Successfully!", use_container_width=True)
+    st.image(img, caption="Scanning the huddle...", use_container_width=True)
 
-    with st.spinner(f"AI Chef is thinking..."):
-        # Using the newest stable model for 2026
+    if analyze_freshness:
+        prompt = "Analyze the freshness of these items. Tell me what's about to spoil so we don't waste food before the big game."
+        loading_msg = "Checking the roster..."
+        header_msg = "⏳ Freshness Forecast"
+    else:
+        # Mafia Mode changes the AI's personality
+        personality = "You are a die-hard Buffalo Bills fan and expert tailgate chef. " if mafia_mode else ""
+        mafia_slang = "Use Buffalo slang like 'Bills Mafia', 'Circle the Wagons', and 'Go Bills'. " if mafia_mode else ""
+        
+        prompt = f"{personality}{mafia_slang}Identify the food in this image. Suggest 3 {diet_goal} recipes. If there are wings, mention Blue Cheese (never ranch)."
+        loading_msg = "Circling the wagons..."
+        header_msg = "👨‍🍳 Mafia Chef Recommendations"
+
+    with st.spinner(loading_msg):
         model = genai.GenerativeModel('gemini-2.5-flash')
-        
-        # Crafting the dynamic prompt
-        macro_text = " Please also include estimated calories and macros for each recipe." if show_macros else ""
-        
-        prompt = (
-            f"Act as a {chef_tone}. Identify the food items in this image. "
-            f"Suggest 3 {diet_goal} recipes based on these ingredients. "
-            f"Format the output with bold titles and numbered steps.{macro_text}"
-        )
-        
         try:
             response = model.generate_content([prompt, img])
-            st.success("Here is what I found!")
+            st.divider()
+            st.subheader(header_msg)
             st.markdown(response.text)
             
+            if mafia_mode:
+                st.info("📢 BUFFALO ALL THE WAY!")
+                
         except Exception as e:
-            if "429" in str(e):
-                st.error("Quota reached. Please wait 60 seconds and try again.")
-            else:
-                st.error(f"AI Error: {e}")
+            st.error(f"Error: {e}")
 
 # Footer
-st.caption(f"Model: Gemini 2.5 Flash | Mode: {diet_goal}")
+st.caption("Powered by Gemini 2.5 Flash | Go Bills!")
