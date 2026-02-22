@@ -2,7 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 from PIL import Image
 import random
-import base64
+import os
 
 # 1. Setup API
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
@@ -26,22 +26,17 @@ st.markdown("""
         border: 2px solid #00338D;
         transform: scale(1.05);
     }
-    /* Circular Profile Style */
-    .profile-pic {
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 4px solid #00338D;
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .chef-title {
+    /* Simple Center Style */
+    .chef-text {
         text-align: center; 
         color: #00338D; 
-        margin-top: 10px;
         font-weight: bold;
+        margin-bottom: 0px;
+    }
+    .buffalo-emoji {
+        text-align: center;
+        font-size: 45px;
+        margin-top: -10px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -51,24 +46,18 @@ st.title("🦬 ColdCase: Mafia Kid-Chef")
 # 3. Sidebar Settings
 with st.sidebar:
     # --- BRANDING SECTION ---
-    try:
-        # Function to convert image to base64 for reliable iPhone display
-        def get_image_base64(path):
-            with open(path, "rb") as img_file:
-                return base64.b64encode(img_file.read()).decode()
-        
-        encoded_img = get_image_base64("me.jpg")
-        st.markdown(f'<img src="data:image/png;base64,{encoded_img}" class="profile-pic">', unsafe_allow_html=True)
-        st.markdown("<h3 class='chef-title'>Head Chef</h3>", unsafe_allow_html=True)
-    except:
-        # Fallback if me.jpg is missing
-        st.markdown("### 👤 Head Chef")
-        st.info("💡 Upload 'me.jpg' to GitHub to see your face here!")
-    
-    # Generic Buffalo Icon (Centered)
-    col1, col2, col3 = st.columns([1,1,1])
-    with col2:
-        st.image("https://upload.wikimedia.org/wikipedia/commons/7/71/American_bison_silhouette.svg", width=60)
+    # We check if the file exists. If NOT, we show a text icon instead of a broken image box.
+    if os.path.exists("me.jpg"):
+        st.image("me.jpg", use_container_width=True)
+        st.markdown("<p class='chef-text'>Head Chef</p>", unsafe_allow_html=True)
+    else:
+        # This text-based approach cannot trigger a "blue question mark" box
+        st.markdown("<h1 style='text-align: center;'>👨‍🍳</h1>", unsafe_allow_html=True)
+        st.markdown("<p class='chef-text'>Head Chef</p>", unsafe_allow_html=True)
+        st.caption("To see your face: Upload 'me.jpg' to GitHub")
+
+    # Buffalo Emoji (Bulletproof on iPhone)
+    st.markdown("<div class='buffalo-emoji'>🦬</div>", unsafe_allow_html=True)
     
     st.divider()
     
@@ -86,12 +75,11 @@ with st.sidebar:
     st.divider()
     input_method = st.radio("Choose Input Method:", ("Camera Roll / Upload", "Take Live Photo"))
 
-# 4. Image Input Logic - TYPO FIXED HERE
+# 4. Image Input Logic
 target = None
 if input_method == "Take Live Photo":
     target = st.camera_input("Take a picture of the spread!")
 else:
-    # Fixed from st.file to st.file_uploader
     target = st.file_uploader("Upload a clear photo", type=["jpg", "jpeg", "png"])
 
 # 5. Processing Logic
@@ -99,7 +87,6 @@ if target:
     img = Image.open(target).convert("RGB")
     st.image(img, caption="Scanning the roster...", use_container_width=True)
 
-    # Mafia + Parent + Kid Task Logic
     personality = "You are a die-hard Buffalo Bills fan and a health-conscious parent. " if mafia_mode else ""
     mafia_slang = "Use family-friendly Buffalo slang like 'Bills Mafia'. " if mafia_mode else ""
     
@@ -117,18 +104,13 @@ if target:
         with st.spinner("Circling the wagons..."):
             model = genai.GenerativeModel('gemini-2.0-flash')
             try:
-                # Making sure the model is called correctly
                 response = model.generate_content([prompt, img])
-                
-                # Victory Effects
                 st.balloons()
                 st.toast("TABLE SMASHED! 🪑💥", icon="🦬")
-                
                 st.divider()
                 st.subheader(f"👨‍🍳 Mafia Parent's {diet_goal} Menu:")
                 st.markdown(response.text)
                 
-                # Random Bills Quote
                 quotes = ["Go Bills!", "Josh Allen eats his spinach!", "Circle the wagons!", "Bills by a Billion!"]
                 st.info(random.choice(quotes))
                 
