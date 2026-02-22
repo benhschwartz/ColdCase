@@ -27,7 +27,7 @@ if target:
 
     with st.spinner(f"AI Chef is thinking ({diet_goal})..."):
         # Use the most stable model name for 2026
-        model = genai.GenerativeModel('gemini-2.0-flash')
+        model = genai.GenerativeModel('gemini-1.5-flash-8b')
         
         # Build the dynamic prompt based on sidebar settings
         nutrition_info = " Please also include estimated calories and macros (Protein, Carbs, Fat) for each recipe." if show_macros else ""
