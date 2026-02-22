@@ -32,16 +32,17 @@ st.title("🦬 ColdCase: Mafia Kid-Chef")
 
 # 3. Sidebar Settings
 with st.sidebar:
-    # --- 1. YOUR PHOTO ---
+    # --- BRANDING SECTION ---
+    # Using a reliable public Buffalo silhouette to avoid "Broken Image" boxes on iPhone
     try:
         st.image("me.jpg", use_container_width=True)
-        st.markdown("<h3 style='text-align: center; color: #00338D; margin-bottom: 0;'>Head Chef</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align: center; color: #00338D; margin-top: -10px;'>Head Chef</h3>", unsafe_allow_html=True)
     except:
-        st.info("💡 Pro Tip: Upload 'me.jpg' to GitHub to see your face here!")
+        st.markdown("### 👤 Head Chef")
+        st.caption("Upload 'me.jpg' to GitHub to see your face here!")
     
-    # --- 2. BILLS LOGO ---
-    # Keeping the logo right under your photo
-    st.image("https://static.www.nfl.com/image/private/f_auto/bills/vsc6u7j3v4f66t7f8gqh", width=80)
+    # Generic Buffalo Icon (Reliable URL)
+    st.image("https://upload.wikimedia.org/wikipedia/commons/7/71/American_bison_silhouette.svg", width=80)
     
     st.divider()
     
