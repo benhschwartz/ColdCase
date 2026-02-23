@@ -94,7 +94,19 @@ if target:
     prompt = f"{personality}{mafia_slang}{kid_task_logic}{ranch_ban}Identify the food in this image and suggest 3 {diet_goal} recipes. Format with bold titles."
 
     if st.button("🚀 SMASH TABLES & START COOKING"):
-        st.markdown("""
-            <style>
-            @keyframes shake {
-              0% { transform: translate(1px, 1px) rotate(0deg); }
+        # (Your CSS shake animation code continues here...)
+        
+        with st.spinner("Digging through the cooler..."):
+            try:
+                # Initialize the model
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                
+                # Generate content using the image and the prompt you built
+                response = model.generate_content([prompt, img])
+                
+                # Display the results
+                st.divider()
+                st.markdown(response.text)
+                
+            except Exception as e:
+                st.error(f"Fumble! Something went wrong: {e}")
